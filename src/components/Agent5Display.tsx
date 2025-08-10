@@ -4,7 +4,7 @@ import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
 
 interface Agent5DisplayProps {
   step: string;
-  finalPrompt: string;
+  finalPrompt: string | any;
   rawFinalResponse?: any;
 }
 
@@ -48,48 +48,60 @@ export function Agent5Display({ step, finalPrompt, rawFinalResponse }: Agent5Dis
     );
   }
 
-  // Extract the improved_prompt, exactly like Agent 2
+  // Extract the improved_prompt from Agent 5 response
   let extractedPrompt = '';
 
+  console.log('Agent5Display - rawFinalResponse:', rawFinalResponse);
+  console.log('Agent5Display - finalPrompt:', finalPrompt);
+
   try {
-    // Try to extract from rawFinalResponse first (preferred source)
+    // First try rawFinalResponse
     if (rawFinalResponse) {
-      let dataToProcess = rawFinalResponse;
-      
-      // Handle nested JSON string in response field
-      if (rawFinalResponse.response && typeof rawFinalResponse.response === 'string') {
-        try {
-          dataToProcess = JSON.parse(rawFinalResponse.response);
-        } catch (e) {
-          // If parsing fails, try to use response string directly
-          dataToProcess = rawFinalResponse;
+      // Handle if rawFinalResponse is already the object we need
+      if (rawFinalResponse.improved_prompt) {
+        extractedPrompt = rawFinalResponse.improved_prompt;
+      } 
+      // Handle if it's nested in a response field
+      else if (rawFinalResponse.response) {
+        if (typeof rawFinalResponse.response === 'string') {
+          try {
+            const parsed = JSON.parse(rawFinalResponse.response);
+            if (parsed.improved_prompt) {
+              extractedPrompt = parsed.improved_prompt;
+            }
+          } catch (e) {
+            console.error('Failed to parse response string:', e);
+          }
+        } else if (rawFinalResponse.response.improved_prompt) {
+          extractedPrompt = rawFinalResponse.response.improved_prompt;
         }
-      }
-      
-      // Extract improved_prompt
-      if (dataToProcess?.improved_prompt) {
-        extractedPrompt = dataToProcess.improved_prompt;
       }
     }
     
-    // Fallback to finalPrompt if rawFinalResponse extraction failed
+    // Fallback to finalPrompt
     if (!extractedPrompt && finalPrompt) {
-      try {
-        const parsed = JSON.parse(finalPrompt);
-        if (parsed.improved_prompt) {
-          extractedPrompt = parsed.improved_prompt;
+      if (typeof finalPrompt === 'string') {
+        try {
+          const parsed = JSON.parse(finalPrompt);
+          if (parsed.improved_prompt) {
+            extractedPrompt = parsed.improved_prompt;
+          } else {
+            extractedPrompt = finalPrompt;
+          }
+        } catch (e) {
+          extractedPrompt = finalPrompt;
         }
-      } catch (e) {
-        // If finalPrompt is not JSON, use it directly
-        extractedPrompt = finalPrompt;
+      } else if (finalPrompt.improved_prompt) {
+        extractedPrompt = finalPrompt.improved_prompt;
       }
     }
 
   } catch (error) {
-    console.error('Error in extraction logic:', error);
-    // Even if extraction fails, try to show something
-    extractedPrompt = finalPrompt || 'No prompt available';
+    console.error('Error in Agent 5 extraction logic:', error);
+    extractedPrompt = 'Error extracting prompt';
   }
+
+  console.log('Agent5Display - extractedPrompt:', extractedPrompt);
 
   return (
     <Card className="glass-card p-6">
