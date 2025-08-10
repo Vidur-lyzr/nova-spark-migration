@@ -174,17 +174,17 @@ export function AgentOutputDisplay({
                   <Card key={index} className="p-4 bg-background/50">
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <Badge variant={gap.severity === 'high' ? 'destructive' : gap.severity === 'medium' ? 'default' : 'secondary'}>
-                          {gap.severity} severity
+                        <Badge variant={gap?.severity === 'high' ? 'destructive' : gap?.severity === 'medium' ? 'default' : 'secondary'}>
+                          {gap?.severity || 'unknown'} severity
                         </Badge>
                       </div>
                       <div>
                         <span className="font-medium text-primary">Issue:</span>
-                        <p className="text-muted-foreground mt-1">{gap.issue}</p>
+                        <p className="text-muted-foreground mt-1">{gap?.issue || 'No issue description available'}</p>
                       </div>
                       <div>
                         <span className="font-medium text-accent">Suggestion:</span>
-                        <p className="text-muted-foreground mt-1">{gap.suggestion}</p>
+                        <p className="text-muted-foreground mt-1">{gap?.suggestion || 'No suggestion available'}</p>
                       </div>
                     </div>
                   </Card>
@@ -203,7 +203,7 @@ export function AgentOutputDisplay({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="font-medium">Final Optimized Prompt</h4>
-              <Badge variant="secondary">{improvements.length} improvements</Badge>
+              <Badge variant="secondary">{improvements?.length || 0} optimizations</Badge>
             </div>
             <ScrollArea className="h-96">
               <div className="space-y-4">
@@ -214,18 +214,24 @@ export function AgentOutputDisplay({
                   </pre>
                 </Card>
                 
-                {improvements.length > 0 && (
+                {improvements && improvements.length > 0 && (
                   <Card className="p-4 bg-background/50">
-                    <h5 className="font-medium text-primary mb-2">Applied Improvements:</h5>
+                    <h5 className="font-medium text-primary mb-2">Applied Optimizations:</h5>
                     <ul className="space-y-1 text-sm text-muted-foreground">
                       {improvements.map((improvement, index) => (
                         <li key={index} className="flex items-start gap-2">
                           <span className="text-accent">•</span>
-                          {improvement}
+                          {improvement || 'Optimization applied'}
                         </li>
                       ))}
                     </ul>
                   </Card>
+                )}
+                
+                {(!improvements || improvements.length === 0) && (
+                  <div className="text-center text-muted-foreground py-8">
+                    Waiting for prompt optimization...
+                  </div>
                 )}
               </div>
             </ScrollArea>

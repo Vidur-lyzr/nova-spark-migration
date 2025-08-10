@@ -15,11 +15,11 @@ export function LogConsole({ logs }: LogConsoleProps) {
   }, [logs]);
 
   return (
-    <div className="glass-card p-4 space-y-3">
-      <h3 className="text-sm font-medium text-foreground">Live Logs</h3>
+    <div className="glass-card p-4 flex flex-col h-full min-h-[400px]">
+      <h3 className="text-sm font-medium text-foreground mb-3">Live Logs</h3>
       
-      <ScrollArea className="h-64 w-full rounded-md border border-white/10">
-        <div ref={scrollRef} className="p-3 space-y-1 font-mono text-xs">
+      <ScrollArea className="flex-1 w-full rounded-md border border-white/10">
+        <div ref={scrollRef} className="p-3 space-y-1 font-mono text-xs min-h-full">
           {logs.length === 0 ? (
             <div className="text-muted-foreground italic">
               Waiting for migration to start...
