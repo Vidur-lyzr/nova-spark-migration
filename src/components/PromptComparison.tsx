@@ -11,21 +11,50 @@ interface PromptComparisonProps {
   originalPrompt: string;
   finalPrompt: string;
   optimizations: string[];
+  rawFinalResponse?: any;
   onCopy?: () => void;
 }
 
-export function PromptComparison({ originalPrompt, finalPrompt, optimizations, onCopy }: PromptComparisonProps) {
+export function PromptComparison({ originalPrompt, finalPrompt, optimizations, rawFinalResponse, onCopy }: PromptComparisonProps) {
   const [activeTab, setActiveTab] = useState('comparison');
   const [showOptimizations, setShowOptimizations] = useState(false);
   const { toast } = useToast();
 
-  // Remove JSON wrapper from finalPrompt if present
+  // Extract the improved_prompt from finalPrompt
   let displayFinalPrompt = finalPrompt;
-  if (typeof finalPrompt === 'string' && finalPrompt.startsWith('{"improved_prompt": "')) {
-    // Remove the JSON wrapper: {"improved_prompt": "content"}
-    displayFinalPrompt = finalPrompt
-      .replace(/^\{"improved_prompt": "/, '')
-      .replace(/"\}$/, '');
+  
+  // If finalPrompt is empty but we have rawFinalResponse, try to extract from there
+  if (!displayFinalPrompt && rawFinalResponse) {
+    try {
+      // Handle case where rawFinalResponse.response contains JSON string
+      let responseData = rawFinalResponse;
+      if (rawFinalResponse.response && typeof rawFinalResponse.response === 'string') {
+        responseData = JSON.parse(rawFinalResponse.response);
+      }
+      
+      if (responseData.improved_prompt) {
+        displayFinalPrompt = responseData.improved_prompt;
+      }
+    } catch (e) {
+      console.warn('Failed to extract improved_prompt from rawFinalResponse:', e);
+    }
+  }
+  
+  // If finalPrompt is a JSON string, try to parse it
+  if (typeof displayFinalPrompt === 'string' && displayFinalPrompt.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(displayFinalPrompt);
+      if (parsed.improved_prompt) {
+        displayFinalPrompt = parsed.improved_prompt;
+      }
+    } catch (e) {
+      // If parsing fails and it looks like a JSON wrapper, try regex approach
+      if (displayFinalPrompt.startsWith('{"improved_prompt": "')) {
+        displayFinalPrompt = displayFinalPrompt
+          .replace(/^\{"improved_prompt": "/, '')
+          .replace(/"\}$/, '');
+      }
+    }
   }
 
   const handleCopy = async () => {

@@ -223,6 +223,7 @@ const Index = () => {
             originalPrompt={prompt}
             finalPrompt={state.finalPrompt}
             optimizations={state.improvements}
+            rawFinalResponse={state.rawFinalResponse}
           />
 
           {/* Agent Outputs - Persist after completion */}
