@@ -14,7 +14,7 @@ export function TestExecutionGrid({ testStatuses, totalTests = 20 }: TestExecuti
   const getStatusIcon = (status: TestStatus) => {
     switch (status) {
       case 'running':
-        return <Play className="w-3 h-3 text-processing running-test" />;
+        return <Play className="w-3 h-3 text-processing" />;
       case 'complete':
         return <CheckCircle className="w-3 h-3 text-accent" />;
       case 'failed':
@@ -27,13 +27,13 @@ export function TestExecutionGrid({ testStatuses, totalTests = 20 }: TestExecuti
   const getStatusColor = (status: TestStatus) => {
     switch (status) {
       case 'running':
-        return 'border-processing bg-processing/20';
+        return 'border-processing/30 bg-processing/10 text-processing';
       case 'complete':
-        return 'border-accent bg-accent/20';
+        return 'border-accent/30 bg-accent/10 text-accent';
       case 'failed':
-        return 'border-destructive bg-destructive/20';
+        return 'border-destructive/30 bg-destructive/10 text-destructive';
       default:
-        return 'border-muted bg-muted/20';
+        return 'border-muted/30 bg-muted/10 text-muted-foreground';
     }
   };
 
@@ -44,12 +44,12 @@ export function TestExecutionGrid({ testStatuses, totalTests = 20 }: TestExecuti
   return (
     <div className="glass-card p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold gradient-text">Test Execution</h3>
+        <h3 className="text-lg font-semibold text-foreground">Test Execution</h3>
         <div className="flex items-center gap-4 text-sm">
-          <span className="text-accent">✓ {completedTests}</span>
-          <span className="text-processing">▶ {runningTests}</span>
-          <span className="text-destructive">✗ {failedTests}</span>
-          <span className="text-muted-foreground">⏳ {totalTests - completedTests - runningTests - failedTests}</span>
+          <span className="text-accent">{completedTests} Complete</span>
+          <span className="text-processing">{runningTests} Running</span>
+          <span className="text-destructive">{failedTests} Failed</span>
+          <span className="text-muted-foreground">{totalTests - completedTests - runningTests - failedTests} Pending</span>
         </div>
       </div>
 
@@ -61,9 +61,8 @@ export function TestExecutionGrid({ testStatuses, totalTests = 20 }: TestExecuti
             <div
               key={testId}
               className={`
-                relative p-3 rounded-lg border transition-all duration-300 hover-lift
+                relative p-3 rounded-lg border transition-all duration-300
                 ${getStatusColor(status)}
-                ${status === 'running' ? 'pulse-processing' : ''}
               `}
             >
               <div className="flex items-center justify-between">
@@ -80,9 +79,6 @@ export function TestExecutionGrid({ testStatuses, totalTests = 20 }: TestExecuti
                 {status === 'pending' && 'Pending'}
               </div>
               
-              {status === 'running' && (
-                <div className="absolute inset-0 bg-processing/10 rounded-lg animate-pulse" />
-              )}
             </div>
           );
         })}

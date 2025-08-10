@@ -10,6 +10,7 @@ import { TestExecutionGrid } from '@/components/TestExecutionGrid';
 import { LogConsole } from '@/components/LogConsole';
 import { PromptComparison } from '@/components/PromptComparison';
 import { AgentOutputDisplay } from '@/components/AgentOutputDisplay';
+import { Header } from '@/components/Header';
 import { useMigration } from '@/hooks/useMigration';
 
 const Index = () => {
@@ -67,8 +68,9 @@ const Index = () => {
 
   if (isInputStage) {
     return (
-      <div className="min-h-screen p-6">
-        <div className="max-w-4xl mx-auto space-y-8">
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="max-w-4xl mx-auto p-6 space-y-8">
           {/* Header */}
           <div className="text-center space-y-4">
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full glass-card-bright">
@@ -76,7 +78,7 @@ const Index = () => {
               <span className="text-sm font-medium">Amazon Nova Migration Tool</span>
             </div>
             
-            <h1 className="text-4xl font-bold gradient-text">
+            <h1 className="text-4xl font-bold text-foreground">
               Migrate Your AI Agent to Nova
             </h1>
             
@@ -175,11 +177,12 @@ const Index = () => {
 
   if (isProcessingStage) {
     return (
-      <div className="min-h-screen p-6">
-        <div className="max-w-6xl mx-auto space-y-6">
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="max-w-6xl mx-auto p-6 space-y-6">
           {/* Header */}
           <div className="text-center space-y-2">
-            <h1 className="text-2xl font-bold gradient-text">Migration in Progress</h1>
+            <h1 className="text-2xl font-bold text-foreground">Migration in Progress</h1>
             <p className="text-muted-foreground">
               Migrating from {provider} {model} to Amazon Nova
             </p>
@@ -213,8 +216,9 @@ const Index = () => {
 
   if (isCompleteStage) {
     return (
-      <div className="min-h-screen p-6">
-        <div className="max-w-6xl mx-auto space-y-6">
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="max-w-6xl mx-auto p-6 space-y-6">
           {/* Header */}
           <div className="text-center space-y-4">
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full glass-card-bright border border-accent/30">
@@ -222,7 +226,7 @@ const Index = () => {
               <span className="text-sm font-medium text-accent">Migration Complete</span>
             </div>
             
-            <h1 className="text-3xl font-bold gradient-text">
+            <h1 className="text-3xl font-bold text-foreground">
               Successfully Migrated to Amazon Nova
             </h1>
             
