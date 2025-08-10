@@ -259,144 +259,61 @@ export function AgentOutputDisplay({
         );
       }
 
-      // Robust extraction logic for Agent 5 response
+      // Simple extraction logic - just get the improved_prompt like Agent 2
       let extractedPrompt = '';
-      let extractedChanges: string[] = [];
-      let showRawFallback = false;
 
       try {
         // Try to extract from rawFinalResponse first (preferred source)
         if (rawFinalResponse) {
-          console.log('Processing raw final response:', rawFinalResponse);
-          
           let dataToProcess = rawFinalResponse;
           
           // Handle nested JSON string in response field
           if (rawFinalResponse.response && typeof rawFinalResponse.response === 'string') {
             try {
-              // Parse the JSON string (with newlines)
               dataToProcess = JSON.parse(rawFinalResponse.response);
-              console.log('Successfully parsed nested response:', dataToProcess);
             } catch (e) {
-              console.warn('Failed to parse nested response JSON:', e.message);
-              showRawFallback = true;
+              // If parsing fails, try to use response string directly
+              dataToProcess = rawFinalResponse;
             }
           }
           
           // Extract improved_prompt
           if (dataToProcess?.improved_prompt) {
             extractedPrompt = dataToProcess.improved_prompt;
-            console.log('✅ Extracted improved_prompt from raw response');
-          }
-          
-          // Extract changes_applied
-          if (dataToProcess?.changes_applied && Array.isArray(dataToProcess.changes_applied)) {
-            extractedChanges = dataToProcess.changes_applied.map((change: any) => {
-              if (typeof change === 'string') return change;
-              if (typeof change === 'object' && change.modification) {
-                return change.modification;
-              }
-              if (typeof change === 'object' && change.expected_impact) {
-                return change.expected_impact;
-              }
-              return JSON.stringify(change).substring(0, 150) + '...';
-            });
-            console.log('✅ Extracted changes_applied from raw response:', extractedChanges.length);
           }
         }
         
         // Fallback to finalPrompt if rawFinalResponse extraction failed
         if (!extractedPrompt && finalPrompt) {
-          console.log('Falling back to finalPrompt extraction');
           try {
             const parsed = JSON.parse(finalPrompt);
             if (parsed.improved_prompt) {
               extractedPrompt = parsed.improved_prompt;
-            }
-            if (parsed.changes_applied && Array.isArray(parsed.changes_applied)) {
-              extractedChanges = parsed.changes_applied.map((change: any) => {
-                if (typeof change === 'string') return change;
-                if (typeof change === 'object' && change.modification) {
-                  return change.modification;
-                }
-                return JSON.stringify(change).substring(0, 150) + '...';
-              });
             }
           } catch (e) {
             // If finalPrompt is not JSON, use it directly
             extractedPrompt = finalPrompt;
           }
         }
-        
-        // Use improvements array as final fallback
-        if (extractedChanges.length === 0 && Array.isArray(improvements)) {
-          extractedChanges = improvements;
-        }
 
       } catch (error) {
         console.error('Error in extraction logic:', error);
-        showRawFallback = true;
         // Even if extraction fails, try to show something
         extractedPrompt = finalPrompt || 'No prompt available';
-        extractedChanges = Array.isArray(improvements) ? improvements : [];
       }
 
-      // Always show content, never blank screen
+      // Display only the final prompt, similar to Agent 2
       return (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h4 className="font-medium">Final Optimized Prompt</h4>
-            <Badge variant="secondary">{extractedChanges.length} optimizations</Badge>
+        <Card className="p-4 bg-background/50">
+          <div className="space-y-2 mb-4">
+            <span className="text-xs text-muted-foreground">
+              Final Optimized Prompt ({extractedPrompt.length} characters)
+            </span>
           </div>
-          
-          {/* Main content - Final Prompt */}
-          <Card className="p-4 bg-background/50">
-            <div className="space-y-2 mb-4">
-              <span className="text-xs text-muted-foreground">
-                Final Prompt ({extractedPrompt.length} characters)
-              </span>
-            </div>
-            <pre className="text-sm text-foreground whitespace-pre-wrap font-mono leading-relaxed border border-border/50 rounded p-4 bg-background/30 max-h-80 overflow-y-auto">
-              {extractedPrompt || 'No final prompt available'}
-            </pre>
-          </Card>
-          
-          {/* Applied Optimizations */}
-          {extractedChanges.length > 0 && (
-            <Card className="p-4 bg-background/50">
-              <h5 className="font-medium text-primary mb-3">Applied Optimizations:</h5>
-              <div className="space-y-3">
-                {extractedChanges.map((change, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-background/30 border-l-2 border-accent/30">
-                    <span className="text-accent font-bold text-lg">•</span>
-                    <span className="text-sm text-muted-foreground leading-relaxed">
-                      {change || `Optimization ${index + 1} applied`}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
-          
-          {/* Show raw response as debugging info if extraction had issues */}
-          {showRawFallback && rawFinalResponse && (
-            <Card className="p-4 bg-background/50 border-orange-200 dark:border-orange-800">
-              <div className="space-y-2 mb-4">
-                <span className="text-xs text-orange-600 dark:text-orange-400">
-                  ⚠️ Extraction had issues - Raw Agent 5 Response for debugging:
-                </span>
-              </div>
-              <details className="cursor-pointer">
-                <summary className="text-sm text-muted-foreground hover:text-foreground">
-                  Click to view raw response
-                </summary>
-                <pre className="text-xs text-muted-foreground bg-background/30 p-3 rounded overflow-auto max-h-60 border border-border/30 mt-2">
-                  {JSON.stringify(rawFinalResponse, null, 2)}
-                </pre>
-              </details>
-            </Card>
-          )}
-        </div>
+          <pre className="text-sm text-foreground whitespace-pre-wrap font-mono leading-relaxed border border-border/50 rounded p-4 bg-background/30 max-h-80 overflow-y-auto">
+            {extractedPrompt || 'No final prompt available'}
+          </pre>
+        </Card>
       );
 
     } catch (error) {
