@@ -75,7 +75,7 @@ const Index = () => {
           <div className="text-center space-y-4">
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full glass-card-bright">
               <Zap className="w-5 h-5 text-primary" />
-              <span className="text-sm font-medium">Amazon Nova Migration Tool</span>
+              <span className="text-sm font-medium">Reduce your LLM costs by 7×</span>
             </div>
             
             <h1 className="text-4xl font-bold text-foreground">
@@ -88,18 +88,6 @@ const Index = () => {
             </p>
           </div>
 
-          {/* Amazon Nova Benefits */}
-          <div className="flex justify-center">
-            <Card className="glass-card p-8 hover-lift max-w-md text-center">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <img src="/src/assets/nova-logo-icon.png" alt="Amazon Nova" className="w-12 h-12" />
-                <h3 className="text-xl font-semibold">Amazon Nova Benefits</h3>
-              </div>
-              <p className="text-3xl font-bold text-secondary mb-2">
-                Reduce your LLM costs by 7×
-              </p>
-            </Card>
-          </div>
 
           {/* Input Form */}
           <Card className="glass-card p-8 space-y-6">

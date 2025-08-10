@@ -16,7 +16,7 @@ export function Header() {
             
             {/* Amazon Nova Logo */}
             <div className="flex items-center space-x-2">
-              <img src="/lovable-uploads/4fa26332-cb36-4688-aaf4-e5e9f8dbe3dd.png" alt="Amazon Nova" className="h-8 w-auto" />
+              <img src="/lovable-uploads/a1969e4b-8da1-4949-950a-9e6e0169f7d6.png" alt="Amazon Nova" className="h-8 w-auto" />
             </div>
           </div>
         </div>
