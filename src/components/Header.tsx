@@ -1,4 +1,3 @@
-import lyzrLogo from "@/assets/lyzr-logo-actual.png";
 import novaIcon from "@/assets/nova-logo-icon.png";
 import novaText from "@/assets/nova-logo-text.png";
 
@@ -10,8 +9,7 @@ export function Header() {
           <div className="flex items-center space-x-3">
             {/* Lyzr Logo */}
             <div className="flex items-center space-x-2">
-              <img src={lyzrLogo} alt="Lyzr" className="w-8 h-8" />
-              <span className="font-semibold text-lg text-foreground">Lyzr</span>
+              <img src="/lovable-uploads/7c1e3ec3-1bdb-44b3-b0e7-84fcac8fd4bc.png" alt="Lyzr" className="w-8 h-8" />
             </div>
             
             {/* Connector */}
