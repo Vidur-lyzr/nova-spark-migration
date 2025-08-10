@@ -9,7 +9,7 @@ import { MigrationProgress } from '@/components/MigrationProgress';
 import { TestExecutionGrid } from '@/components/TestExecutionGrid';
 import { LogConsole } from '@/components/LogConsole';
 import { PromptComparison } from '@/components/PromptComparison';
-import { SafeAgentDisplay } from '@/components/SafeAgentDisplay';
+import { AgentOutputDisplay } from '@/components/AgentOutputDisplay';
 import { Header } from '@/components/Header';
 import { useMigration } from '@/hooks/useMigration';
 
@@ -161,18 +161,18 @@ const Index = () => {
             <TestExecutionGrid testStatuses={state.testStatuses} />
           )}
 
-          {/* Safe Agent Display */}
-          <SafeAgentDisplay
-            step={state.step}
-            testCases={state.testCases}
-            migratedPrompt={state.migratedPrompt}
-            novaResults={state.novaResults}
-            performanceGaps={state.performanceGaps}
-            finalPrompt={state.finalPrompt}
-            improvements={state.improvements}
-            rawFinalResponse={state.rawFinalResponse}
-            testStatuses={state.testStatuses}
-          />
+          {/* Agent Outputs Display */}
+              <AgentOutputDisplay
+                step={state.step}
+                testCases={state.testCases}
+                migratedPrompt={state.migratedPrompt}
+                novaResults={state.novaResults}
+                performanceGaps={state.performanceGaps}
+                finalPrompt={state.finalPrompt}
+                improvements={state.improvements}
+                rawFinalResponse={state.rawFinalResponse}
+                testStatuses={state.testStatuses}
+              />
         </div>
       </div>
     );
@@ -217,18 +217,18 @@ const Index = () => {
             optimizations={state.improvements}
           />
 
-          {/* Safe Agent Display - Persist after completion */}
-          <SafeAgentDisplay
-            step={state.step}
-            testCases={state.testCases}
-            migratedPrompt={state.migratedPrompt}
-            novaResults={state.novaResults}
-            performanceGaps={state.performanceGaps}
-            finalPrompt={state.finalPrompt}
-            improvements={state.improvements}
-            rawFinalResponse={state.rawFinalResponse}
-            testStatuses={state.testStatuses}
-          />
+          {/* Agent Outputs - Persist after completion */}
+              <AgentOutputDisplay
+                step={state.step}
+                testCases={state.testCases}
+                migratedPrompt={state.migratedPrompt}
+                novaResults={state.novaResults}
+                performanceGaps={state.performanceGaps}
+                finalPrompt={state.finalPrompt}
+                improvements={state.improvements}
+                rawFinalResponse={state.rawFinalResponse}
+                testStatuses={state.testStatuses}
+              />
 
           {/* Final Actions */}
           <div className="text-center space-y-4">

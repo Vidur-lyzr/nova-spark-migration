@@ -5,7 +5,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import type { TestCase, NovaTestResult, PerformanceGap } from '@/services/lyzrService';
 import type { MigrationStep, TestStatus } from '@/hooks/useMigration';
-import { useState, useEffect } from 'react';
 
 interface AgentOutputDisplayProps {
   step: MigrationStep;
@@ -30,12 +29,6 @@ export function AgentOutputDisplay({
   rawFinalResponse = null,
   testStatuses = {}
 }: AgentOutputDisplayProps) {
-  const [hasTabsError, setHasTabsError] = useState(false);
-
-  // Reset error state when step changes
-  useEffect(() => {
-    setHasTabsError(false);
-  }, [step]);
   const getStepStatus = (stepName: string) => {
     if (step === 'complete') return 'complete';
     if (step === 'error') return 'error';
@@ -443,264 +436,136 @@ export function AgentOutputDisplay({
   console.log('AgentOutputDisplay rendering with step:', step);
   console.log('AgentOutputDisplay rawFinalResponse available:', !!rawFinalResponse);
 
-  // Create emergency fallback component that doesn't use Tabs
-  const EmergencyFallback = () => (
-    <Card className="glass-card p-6 border-red-200 dark:border-red-800">
-      <h3 className="text-lg font-semibold text-red-600 dark:text-red-400 mb-4">
-        ⚠️ Emergency Display Mode - Tabs Error
-      </h3>
+  return (
+    <Card className="glass-card p-6">
+      <h3 className="text-lg font-semibold gradient-text mb-4">Agent Outputs</h3>
       
-      <div className="space-y-6">
-        {/* Always show Agent 5 output first if available */}
-        {rawFinalResponse && (
-          <Card className="p-4 bg-background/50">
-            <h4 className="font-medium text-primary mb-3">🤖 Agent 5 - Final Optimized Prompt</h4>
-            
-            {/* Show extracted content */}
-            {(() => {
-              try {
-                let dataToProcess = rawFinalResponse;
-                
-                if (rawFinalResponse.response && typeof rawFinalResponse.response === 'string') {
-                  try {
-                    dataToProcess = JSON.parse(rawFinalResponse.response);
-                  } catch (e) {
-                    console.warn('Could not parse nested response');
-                  }
-                }
-                
-                if (dataToProcess?.improved_prompt) {
-                  return (
-                    <div className="space-y-4">
-                      <div>
-                        <span className="text-xs text-muted-foreground mb-2 block">
-                          Final Prompt ({dataToProcess.improved_prompt.length} characters)
-                        </span>
-                        <pre className="text-sm text-foreground whitespace-pre-wrap font-mono leading-relaxed border border-border/50 rounded p-4 bg-background/30 max-h-80 overflow-y-auto">
-                          {dataToProcess.improved_prompt}
-                        </pre>
-                      </div>
-                      
-                      {dataToProcess.changes_applied && Array.isArray(dataToProcess.changes_applied) && (
-                        <div>
-                          <h5 className="font-medium text-primary mb-3">Applied Optimizations:</h5>
-                          <div className="space-y-2">
-                            {dataToProcess.changes_applied.map((change: any, index: number) => (
-                              <div key={index} className="p-2 rounded bg-background/30 text-sm">
-                                • {typeof change === 'string' ? change : change?.modification || JSON.stringify(change).substring(0, 100)}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-                
-                return null;
-              } catch (e) {
-                return null;
-              }
-            })()}
-            
-            {/* Always show complete raw response */}
-            <details className="mt-4">
-              <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
-                View Complete Raw Agent 5 Response
-              </summary>
-              <pre className="text-xs text-muted-foreground bg-background/30 p-3 rounded overflow-auto max-h-60 border border-border/30 mt-2">
-                {JSON.stringify(rawFinalResponse, null, 2)}
-              </pre>
-            </details>
-          </Card>
-        )}
-        
-        {/* Show final prompt if rawFinalResponse failed */}
-        {!rawFinalResponse && finalPrompt && (
-          <Card className="p-4 bg-background/50">
-            <h4 className="font-medium text-primary mb-3">🤖 Agent 5 - Final Prompt</h4>
-            <pre className="text-sm text-foreground whitespace-pre-wrap font-mono leading-relaxed border border-border/50 rounded p-4 bg-background/30 max-h-80 overflow-y-auto">
-              {finalPrompt}
-            </pre>
-          </Card>
-        )}
-        
-        {/* Show migrated prompt */}
-        {migratedPrompt && (
-          <Card className="p-4 bg-background/50">
-            <h4 className="font-medium text-primary mb-3">🤖 Agent 2 - Migrated Prompt</h4>
-            <pre className="text-sm text-foreground whitespace-pre-wrap font-mono leading-relaxed border border-border/50 rounded p-4 bg-background/30 max-h-60 overflow-y-auto">
-              {migratedPrompt}
-            </pre>
-          </Card>
-        )}
-        
-        {/* Show other data if available */}
-        {testCases.length > 0 && (
-          <Card className="p-4 bg-background/50">
-            <h4 className="font-medium text-primary mb-3">🤖 Agent 1 - Test Cases ({testCases.length})</h4>
-            <div className="text-sm text-muted-foreground">Test cases generated successfully</div>
-          </Card>
-        )}
-        
-        {novaResults.length > 0 && (
-          <Card className="p-4 bg-background/50">
-            <h4 className="font-medium text-primary mb-3">🤖 Agent 3 - Nova Results ({novaResults.length})</h4>
-            <div className="text-sm text-muted-foreground">Nova tests completed</div>
-          </Card>
-        )}
-        
-        {performanceGaps.length > 0 && (
-          <Card className="p-4 bg-background/50">
-            <h4 className="font-medium text-primary mb-3">🤖 Agent 4 - Performance Analysis ({performanceGaps.length} gaps)</h4>
-            <div className="text-sm text-muted-foreground">Performance gaps identified</div>
-          </Card>
-        )}
-      </div>
-    </Card>
-  );
+      <Tabs defaultValue="testcases" className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="testcases" className="flex items-center gap-2">
+            <StatusIcon status={getStepStatus('generating')} />
+            Agent 1
+          </TabsTrigger>
+          <TabsTrigger value="migration" className="flex items-center gap-2">
+            <StatusIcon status={getStepStatus('migrating')} />
+            Agent 2
+          </TabsTrigger>
+          <TabsTrigger value="nova" className="flex items-center gap-2">
+            <StatusIcon status={getStepStatus('testing')} />
+            Agent 3
+          </TabsTrigger>
+          <TabsTrigger value="analysis" className="flex items-center gap-2">
+            <StatusIcon status={getStepStatus('analyzing')} />
+            Agent 4
+          </TabsTrigger>
+          <TabsTrigger value="final" className="flex items-center gap-2">
+            <StatusIcon status={getStepStatus('optimizing')} />
+            Agent 5
+          </TabsTrigger>
+        </TabsList>
 
-  // Try to render normal Tabs, fallback to emergency mode if it fails
-  try {
-    return (
-      <Card className="glass-card p-6">
-        <h3 className="text-lg font-semibold gradient-text mb-4">Agent Outputs</h3>
-        
-        <Tabs defaultValue="testcases" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="testcases" className="flex items-center gap-2">
-              <StatusIcon status={getStepStatus('generating')} />
-              Agent 1
-            </TabsTrigger>
-            <TabsTrigger value="migration" className="flex items-center gap-2">
-              <StatusIcon status={getStepStatus('migrating')} />
-              Agent 2
-            </TabsTrigger>
-            <TabsTrigger value="nova" className="flex items-center gap-2">
-              <StatusIcon status={getStepStatus('testing')} />
-              Agent 3
-            </TabsTrigger>
-            <TabsTrigger value="analysis" className="flex items-center gap-2">
-              <StatusIcon status={getStepStatus('analyzing')} />
-              Agent 4
-            </TabsTrigger>
-            <TabsTrigger value="final" className="flex items-center gap-2">
-              <StatusIcon status={getStepStatus('optimizing')} />
-              Agent 5
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="testcases" className="mt-4">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h4 className="font-medium">Test Case Generator</h4>
-                <Badge variant="secondary">{Array.isArray(testCases) ? testCases.length : 0} test cases</Badge>
-              </div>
-              <ScrollArea className="h-96">
-                {(() => {
-                  try {
-                    return renderTestCases();
-                  } catch (error) {
-                    console.error('Error in renderTestCases:', error);
-                    setHasTabsError(true);
-                    return <div className="text-destructive">Error loading test cases</div>;
-                  }
-                })()}
-              </ScrollArea>
+        <TabsContent value="testcases" className="mt-4">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium">Test Case Generator</h4>
+              <Badge variant="secondary">{Array.isArray(testCases) ? testCases.length : 0} test cases</Badge>
             </div>
-          </TabsContent>
-
-          <TabsContent value="migration" className="mt-4">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h4 className="font-medium">Prompt Migration</h4>
-                <Badge variant="outline" className="text-accent border-accent/30">Nova Format</Badge>
-              </div>
-              <ScrollArea className="h-96">
-                {(() => {
-                  try {
-                    return renderMigration();
-                  } catch (error) {
-                    console.error('Error in renderMigration:', error);
-                    setHasTabsError(true);
-                    return <div className="text-destructive">Error loading migration</div>;
-                  }
-                })()}
-              </ScrollArea>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="nova" className="mt-4">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h4 className="font-medium">Nova Test Results</h4>
-                <Badge variant="secondary">{Array.isArray(novaResults) ? novaResults.length : 0} results</Badge>
-              </div>
-              <ScrollArea className="h-96">
-                {(() => {
-                  try {
-                    return renderNovaResults();
-                  } catch (error) {
-                    console.error('Error in renderNovaResults:', error);
-                    setHasTabsError(true);
-                    return <div className="text-destructive">Error loading Nova results</div>;
-                  }
-                })()}
-              </ScrollArea>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="analysis" className="mt-4">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h4 className="font-medium">Performance Analysis</h4>
-                <Badge variant="secondary">{Array.isArray(performanceGaps) ? performanceGaps.length : 0} issues found</Badge>
-              </div>
-              <ScrollArea className="h-96">
-                {(() => {
-                  try {
-                    return renderPerformanceGaps();
-                  } catch (error) {
-                    console.error('Error in renderPerformanceGaps:', error);
-                    setHasTabsError(true);
-                    return <div className="text-destructive">Error loading performance analysis</div>;
-                  }
-                })()}
-              </ScrollArea>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="final" className="mt-4">
             <ScrollArea className="h-96">
               {(() => {
                 try {
-                  console.log('About to render final prompt, rawFinalResponse:', !!rawFinalResponse);
-                  const result = renderFinalPrompt();
-                  console.log('Successfully rendered final prompt');
-                  return result;
+                  return renderTestCases();
                 } catch (error) {
-                  console.error('CRITICAL ERROR in renderFinalPrompt:', error);
-                  setHasTabsError(true);
-                  return (
-                    <div className="text-destructive p-4">
-                      <div>Critical error in final prompt display - switching to emergency mode</div>
-                      <div className="text-xs mt-2">Check console for details</div>
-                      {rawFinalResponse && (
-                        <pre className="text-xs mt-2 bg-background/30 p-2 rounded overflow-auto max-h-20">
-                          {JSON.stringify(rawFinalResponse, null, 2).substring(0, 200)}...
-                        </pre>
-                      )}
-                    </div>
-                  );
+                  console.error('Error in renderTestCases:', error);
+                  return <div className="text-destructive">Error loading test cases</div>;
                 }
               })()}
             </ScrollArea>
-          </TabsContent>
-        </Tabs>
-      </Card>
-    );
-  } catch (error) {
-    console.error('TABS COMPONENT ERROR - Switching to emergency fallback:', error);
-    return <EmergencyFallback />;
-  }
+          </div>
+        </TabsContent>
+
+        <TabsContent value="migration" className="mt-4">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium">Prompt Migration</h4>
+              <Badge variant="outline" className="text-accent border-accent/30">Nova Format</Badge>
+            </div>
+            <ScrollArea className="h-96">
+              {(() => {
+                try {
+                  return renderMigration();
+                } catch (error) {
+                  console.error('Error in renderMigration:', error);
+                  return <div className="text-destructive">Error loading migration</div>;
+                }
+              })()}
+            </ScrollArea>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="nova" className="mt-4">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium">Nova Test Results</h4>
+              <Badge variant="secondary">{Array.isArray(novaResults) ? novaResults.length : 0} results</Badge>
+            </div>
+            <ScrollArea className="h-96">
+              {(() => {
+                try {
+                  return renderNovaResults();
+                } catch (error) {
+                  console.error('Error in renderNovaResults:', error);
+                  return <div className="text-destructive">Error loading Nova results</div>;
+                }
+              })()}
+            </ScrollArea>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="analysis" className="mt-4">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium">Performance Analysis</h4>
+              <Badge variant="secondary">{Array.isArray(performanceGaps) ? performanceGaps.length : 0} issues found</Badge>
+            </div>
+            <ScrollArea className="h-96">
+              {(() => {
+                try {
+                  return renderPerformanceGaps();
+                } catch (error) {
+                  console.error('Error in renderPerformanceGaps:', error);
+                  return <div className="text-destructive">Error loading performance analysis</div>;
+                }
+              })()}
+            </ScrollArea>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="final" className="mt-4">
+          <ScrollArea className="h-96">
+            {(() => {
+              try {
+                console.log('About to render final prompt, rawFinalResponse:', !!rawFinalResponse);
+                const result = renderFinalPrompt();
+                console.log('Successfully rendered final prompt');
+                return result;
+              } catch (error) {
+                console.error('CRITICAL ERROR in renderFinalPrompt:', error);
+                return (
+                  <div className="text-destructive p-4">
+                    <div>Critical error in final prompt display</div>
+                    <div className="text-xs mt-2">Check console for details</div>
+                    {rawFinalResponse && (
+                      <pre className="text-xs mt-2 bg-background/30 p-2 rounded overflow-auto max-h-20">
+                        {JSON.stringify(rawFinalResponse, null, 2).substring(0, 200)}...
+                      </pre>
+                    )}
+                  </div>
+                );
+              }
+            })()}
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
+    </Card>
+  );
 }
