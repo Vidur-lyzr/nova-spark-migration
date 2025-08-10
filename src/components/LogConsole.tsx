@@ -18,7 +18,7 @@ export function LogConsole({ logs }: LogConsoleProps) {
     <div className="glass-card p-4 space-y-3">
       <h3 className="text-sm font-medium text-foreground">Live Logs</h3>
       
-      <ScrollArea className="h-32 w-full rounded-md border border-white/10">
+      <ScrollArea className="h-64 w-full rounded-md border border-white/10">
         <div ref={scrollRef} className="p-3 space-y-1 font-mono text-xs">
           {logs.length === 0 ? (
             <div className="text-muted-foreground italic">

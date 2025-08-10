@@ -203,10 +203,17 @@ const Index = () => {
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-accent">{state.improvements.length}</div>
-                <div className="text-muted-foreground">Improvements Applied</div>
+                <div className="text-muted-foreground">Optimizations Applied</div>
               </div>
             </div>
           </div>
+
+          {/* Results */}
+          <PromptComparison
+            originalPrompt={prompt}
+            finalPrompt={state.finalPrompt}
+            optimizations={state.improvements}
+          />
 
           {/* Agent Outputs - Persist after completion */}
           <AgentOutputDisplay 
@@ -217,14 +224,6 @@ const Index = () => {
             performanceGaps={state.performanceGaps}
             finalPrompt={state.finalPrompt}
             improvements={state.improvements}
-          />
-
-          {/* Results */}
-          <PromptComparison
-            originalPrompt={prompt}
-            finalPrompt={state.finalPrompt}
-            improvements={state.improvements}
-            onDownload={handleDownloadReport}
           />
 
           {/* Final Actions */}

@@ -1,4 +1,4 @@
-import { CheckCircle, Circle, Clock, AlertCircle, Zap } from 'lucide-react';
+import { CheckCircle, Circle, Clock, AlertCircle, Zap, FileText, RotateCcw, TestTube, BarChart, Sparkles } from 'lucide-react';
 import { type MigrationStep } from '@/hooks/useMigration';
 
 interface MigrationProgressProps {
@@ -14,32 +14,32 @@ const steps = [
   { 
     id: 'generating', 
     name: 'Generate Test Cases', 
-    icon: '📝',
+    icon: FileText,
     description: 'Creating comprehensive test scenarios'
   },
   { 
     id: 'migrating', 
     name: 'Migrate Prompt', 
-    icon: '🔄',
+    icon: RotateCcw,
     description: 'Converting to Nova format'
   },
   { 
     id: 'testing', 
     name: 'Run Nova Tests', 
-    icon: '🧪',
+    icon: TestTube,
     description: 'Executing on Amazon Nova'
   },
   { 
     id: 'analyzing', 
     name: 'Analyze Results', 
-    icon: '📊',
+    icon: BarChart,
     description: 'Comparing performance'
   },
   { 
     id: 'optimizing', 
     name: 'Optimize Prompt', 
-    icon: '✨',
-    description: 'Applying improvements'
+    icon: Sparkles,
+    description: 'Applying optimizations'
   }
 ];
 
@@ -97,7 +97,7 @@ export function MigrationProgress({ currentStep, progress }: MigrationProgressPr
               
               <div className="flex-1 space-y-1">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">{step.icon}</span>
+                  <step.icon className="w-5 h-5 text-muted-foreground" />
                   <h4 className={`font-medium ${isActive ? 'text-processing' : 'text-foreground'}`}>
                     {step.name}
                   </h4>
