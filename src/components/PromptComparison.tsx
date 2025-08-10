@@ -19,15 +19,13 @@ export function PromptComparison({ originalPrompt, finalPrompt, optimizations, o
   const [showOptimizations, setShowOptimizations] = useState(false);
   const { toast } = useToast();
 
-  // Extract the improved_prompt like Agent5Display does
+  // Remove JSON wrapper from finalPrompt if present
   let displayFinalPrompt = finalPrompt;
-  try {
-    const parsed = JSON.parse(finalPrompt);
-    if (parsed.improved_prompt) {
-      displayFinalPrompt = parsed.improved_prompt;
-    }
-  } catch (e) {
-    // Not JSON, use as-is
+  if (typeof finalPrompt === 'string' && finalPrompt.startsWith('{"improved_prompt": "')) {
+    // Remove the JSON wrapper: {"improved_prompt": "content"}
+    displayFinalPrompt = finalPrompt
+      .replace(/^\{"improved_prompt": "/, '')
+      .replace(/"\}$/, '');
   }
 
   const handleCopy = async () => {
