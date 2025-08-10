@@ -146,14 +146,21 @@ class LyzrAgentService {
     
     try {
       const response = await this.callAgent(this.agentIds.outputComparator, comparisonData);
+      console.log('Agent 4 raw response:', JSON.stringify(response, null, 2));
+      
       const rawGaps: RawPerformanceGap[] = response.performance_gaps || [];
       
-      // Transform the response to match UI expectations
+      // Don't transform - keep original structure for UI to handle
       return rawGaps.map(gap => ({
         issue: gap.gap || 'Unknown issue',
         severity: this.mapFrequencyToSeverity(gap.frequency),
-        suggestion: gap.suggested_fix || 'No suggestion available'
-      }));
+        suggestion: gap.suggested_fix || 'No suggestion available',
+        // Keep original fields for UI access
+        gap: gap.gap,
+        example: gap.example,
+        frequency: gap.frequency,
+        suggested_fix: gap.suggested_fix
+      } as any));
     } catch (error) {
       console.error('Failed to process performance gaps:', error);
       return [];
@@ -178,6 +185,7 @@ class LyzrAgentService {
     
     try {
       const response = await this.callAgent(this.agentIds.promptImprover, improvementInput);
+      console.log('Agent 5 raw response:', JSON.stringify(response, null, 2));
       
       // Transform changes_applied from complex objects to simple strings
       let changesApplied: string[] = [];
@@ -187,7 +195,10 @@ class LyzrAgentService {
           if (typeof change === 'object' && change.modification) {
             return change.modification;
           }
-          return 'Optimization applied';
+          if (typeof change === 'object' && change.expected_impact) {
+            return change.expected_impact;
+          }
+          return JSON.stringify(change).substring(0, 100);
         });
       }
       

@@ -162,15 +162,16 @@ const Index = () => {
           )}
 
           {/* Agent Outputs Display */}
-          <AgentOutputDisplay 
-            step={state.step}
-            testCases={state.testCases}
-            migratedPrompt={state.migratedPrompt}
-            novaResults={state.novaResults}
-            performanceGaps={state.performanceGaps}
-            finalPrompt={state.finalPrompt}
-            improvements={state.improvements}
-          />
+              <AgentOutputDisplay
+                step={state.step}
+                testCases={state.testCases}
+                migratedPrompt={state.migratedPrompt}
+                novaResults={state.novaResults}
+                performanceGaps={state.performanceGaps}
+                finalPrompt={state.finalPrompt}
+                improvements={state.improvements}
+                testStatuses={state.testStatuses}
+              />
         </div>
       </div>
     );
@@ -216,15 +217,16 @@ const Index = () => {
           />
 
           {/* Agent Outputs - Persist after completion */}
-          <AgentOutputDisplay 
-            step={state.step}
-            testCases={state.testCases}
-            migratedPrompt={state.migratedPrompt}
-            novaResults={state.novaResults}
-            performanceGaps={state.performanceGaps}
-            finalPrompt={state.finalPrompt}
-            improvements={state.improvements}
-          />
+              <AgentOutputDisplay
+                step={state.step}
+                testCases={state.testCases}
+                migratedPrompt={state.migratedPrompt}
+                novaResults={state.novaResults}
+                performanceGaps={state.performanceGaps}
+                finalPrompt={state.finalPrompt}
+                improvements={state.improvements}
+                testStatuses={state.testStatuses}
+              />
 
           {/* Final Actions */}
           <div className="text-center space-y-4">
