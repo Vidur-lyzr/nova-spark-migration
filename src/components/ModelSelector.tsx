@@ -6,20 +6,24 @@ interface ModelSelectorProps {
   onChange: (value: string) => void;
 }
 
-const modelsByProvider: Record<string, Array<{ id: string; name: string; description: string }>> = {
+const modelsByProvider: Record<string, Array<{ id: string; name: string }>> = {
   openai: [
-    { id: 'gpt-4o', name: 'GPT-4o', description: 'Latest GPT-4 Optimized' },
-    { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', description: 'Fast and capable' },
-    { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', description: 'Cost-effective' }
+    { id: 'gpt-4o', name: 'GPT 4o' },
+    { id: 'gpt-4.1', name: 'GPT 4.1' },
+    { id: 'gpt-5', name: 'GPT 5' },
+    { id: 'gpt-o3', name: 'GPT o3' },
+    { id: 'gpt-o4', name: 'GPT o4' },
+    { id: 'gpt-o4-mini', name: 'GPT o4-mini' },
+    { id: 'gpt-4o-mini', name: 'GPT 4o-mini' }
   ],
   anthropic: [
-    { id: 'claude-3-opus', name: 'Claude 3 Opus', description: 'Most powerful' },
-    { id: 'claude-3-sonnet', name: 'Claude 3 Sonnet', description: 'Balanced performance' },
-    { id: 'claude-3-haiku', name: 'Claude 3 Haiku', description: 'Fast and efficient' }
+    { id: 'claude-opus-4.1', name: 'Claude Opus 4.1' },
+    { id: 'claude-sonnet-4.1', name: 'Claude Sonnet 4.1' },
+    { id: 'claude-sonnet-4.0', name: 'Claude Sonnet 4.0' }
   ],
   google: [
-    { id: 'gemini-pro', name: 'Gemini Pro', description: 'Google\'s best model' },
-    { id: 'gemini-ultra', name: 'Gemini Ultra', description: 'Most capable' }
+    { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash' },
+    { id: 'gemini-2.5', name: 'Gemini 2.5' }
   ]
 };
 
@@ -38,10 +42,7 @@ export function ModelSelector({ provider, value, onChange }: ModelSelectorProps)
         <SelectContent className="glass-card border-white/20">
           {models.map((model) => (
             <SelectItem key={model.id} value={model.id} className="hover:bg-white/10">
-              <div className="flex flex-col items-start">
-                <span className="font-medium">{model.name}</span>
-                <span className="text-xs text-muted-foreground">{model.description}</span>
-              </div>
+              <span className="font-medium">{model.name}</span>
             </SelectItem>
           ))}
         </SelectContent>

@@ -88,41 +88,15 @@ const Index = () => {
             </p>
           </div>
 
-          {/* Features */}
-          <div className="grid md:grid-cols-3 gap-6">
-            <Card className="glass-card p-6 hover-lift">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                  <Target className="w-5 h-5 text-primary" />
-                </div>
-                <h3 className="font-semibold">Smart Test Generation</h3>
+          {/* Amazon Nova Benefits */}
+          <div className="flex justify-center">
+            <Card className="glass-card p-8 hover-lift max-w-md text-center">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <img src="/src/assets/nova-logo-icon.png" alt="Amazon Nova" className="w-12 h-12" />
+                <h3 className="text-xl font-semibold">Amazon Nova Benefits</h3>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Automatically generates 20 comprehensive test cases based on your current prompt.
-              </p>
-            </Card>
-
-            <Card className="glass-card p-6 hover-lift">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-secondary/20 flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-secondary" />
-                </div>
-                <h3 className="font-semibold">Nova Optimization</h3>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Converts and optimizes your prompt specifically for Amazon Nova's capabilities.
-              </p>
-            </Card>
-
-            <Card className="glass-card p-6 hover-lift">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center">
-                  <BarChart3 className="w-5 h-5 text-accent" />
-                </div>
-                <h3 className="font-semibold">Performance Analysis</h3>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Compares outputs and identifies areas for improvement with detailed insights.
+              <p className="text-3xl font-bold text-secondary mb-2">
+                Reduce your LLM costs by 7×
               </p>
             </Card>
           </div>

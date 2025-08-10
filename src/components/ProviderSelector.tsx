@@ -6,9 +6,9 @@ interface ProviderSelectorProps {
 }
 
 const providers = [
-  { id: 'openai', name: 'OpenAI', icon: '🤖' },
-  { id: 'anthropic', name: 'Anthropic', icon: '🧠' },
-  { id: 'google', name: 'Google', icon: '🔍' }
+  { id: 'openai', name: 'OpenAI' },
+  { id: 'anthropic', name: 'Anthropic' },
+  { id: 'google', name: 'Google' }
 ];
 
 export function ProviderSelector({ value, onChange }: ProviderSelectorProps) {
@@ -24,10 +24,7 @@ export function ProviderSelector({ value, onChange }: ProviderSelectorProps) {
         <SelectContent className="glass-card border-white/20">
           {providers.map((provider) => (
             <SelectItem key={provider.id} value={provider.id} className="hover:bg-white/10">
-              <div className="flex items-center gap-3">
-                <span className="text-lg">{provider.icon}</span>
-                <span>{provider.name}</span>
-              </div>
+              <span>{provider.name}</span>
             </SelectItem>
           ))}
         </SelectContent>

@@ -1,4 +1,6 @@
-import { Sparkles, Zap } from "lucide-react";
+import lyzrLogo from "@/assets/lyzr-logo-actual.png";
+import novaIcon from "@/assets/nova-logo-icon.png";
+import novaText from "@/assets/nova-logo-text.png";
 
 export function Header() {
   return (
@@ -8,9 +10,7 @@ export function Header() {
           <div className="flex items-center space-x-3">
             {/* Lyzr Logo */}
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-primary-foreground" />
-              </div>
+              <img src={lyzrLogo} alt="Lyzr" className="w-8 h-8" />
               <span className="font-semibold text-lg text-foreground">Lyzr</span>
             </div>
             
@@ -19,15 +19,9 @@ export function Header() {
             
             {/* Amazon Nova Logo */}
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center">
-                <Zap className="w-5 h-5 text-secondary-foreground" />
-              </div>
-              <span className="font-semibold text-lg text-foreground">Amazon Nova</span>
+              <img src={novaIcon} alt="Amazon Nova" className="w-8 h-8" />
+              <img src={novaText} alt="Amazon Nova" className="h-6" />
             </div>
-          </div>
-          
-          <div className="text-sm text-muted-foreground">
-            AI Agent Migration Tool
           </div>
         </div>
       </div>
