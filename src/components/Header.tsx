@@ -1,5 +1,4 @@
-import novaIcon from "@/assets/nova-logo-icon.png";
-import novaText from "@/assets/nova-logo-text.png";
+
 
 export function Header() {
   return (
@@ -9,7 +8,7 @@ export function Header() {
           <div className="flex items-center space-x-3">
             {/* Lyzr Logo */}
             <div className="flex items-center space-x-2">
-              <img src="/lovable-uploads/7c1e3ec3-1bdb-44b3-b0e7-84fcac8fd4bc.png" alt="Lyzr" className="w-8 h-8" />
+              <img src="/lovable-uploads/7c1e3ec3-1bdb-44b3-b0e7-84fcac8fd4bc.png" alt="Lyzr" className="h-8 w-auto" />
             </div>
             
             {/* Connector */}
@@ -17,8 +16,7 @@ export function Header() {
             
             {/* Amazon Nova Logo */}
             <div className="flex items-center space-x-2">
-              <img src={novaIcon} alt="Amazon Nova" className="w-8 h-8" />
-              <img src={novaText} alt="Amazon Nova" className="h-6" />
+              <img src="/lovable-uploads/4fa26332-cb36-4688-aaf4-e5e9f8dbe3dd.png" alt="Amazon Nova" className="h-8 w-auto" />
             </div>
           </div>
         </div>
