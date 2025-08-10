@@ -14,6 +14,7 @@ interface AgentOutputDisplayProps {
   performanceGaps: PerformanceGap[];
   finalPrompt: string;
   improvements: string[];
+  rawFinalResponse?: any; // Add raw response prop
   testStatuses: Record<string, TestStatus>;
 }
 
@@ -25,6 +26,7 @@ export function AgentOutputDisplay({
   performanceGaps = [],
   finalPrompt = '',
   improvements = [],
+  rawFinalResponse = null,
   testStatuses = {}
 }: AgentOutputDisplayProps) {
   const getStepStatus = (stepName: string) => {
@@ -248,6 +250,86 @@ export function AgentOutputDisplay({
 
   const renderFinalPrompt = () => {
     try {
+      // ALWAYS show raw response if available for debugging
+      if (rawFinalResponse) {
+        console.log('Rendering raw final response:', rawFinalResponse);
+        
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium">Agent 5 Raw Response</h4>
+              <Badge variant="secondary">Raw Output</Badge>
+            </div>
+            
+            <Card className="p-4 bg-background/50">
+              <div className="space-y-2 mb-4">
+                <span className="text-xs text-muted-foreground">Complete Raw Agent 5 Response</span>
+              </div>
+              <pre className="text-xs text-muted-foreground bg-background/30 p-3 rounded overflow-auto max-h-80 border border-border/30">
+                {JSON.stringify(rawFinalResponse, null, 2)}
+              </pre>
+            </Card>
+            
+            {/* Try to extract and show parsed content if possible */}
+            {(() => {
+              try {
+                let parsedData = rawFinalResponse;
+                
+                // Handle nested JSON string in response field
+                if (rawFinalResponse?.response && typeof rawFinalResponse.response === 'string') {
+                  try {
+                    parsedData = JSON.parse(rawFinalResponse.response);
+                  } catch (e) {
+                    return null; // Could not parse nested JSON
+                  }
+                }
+                
+                if (parsedData?.improved_prompt) {
+                  return (
+                    <div className="space-y-4">
+                      <Card className="p-4 bg-background/50">
+                        <div className="space-y-2 mb-4">
+                          <span className="text-xs text-muted-foreground">
+                            Extracted Final Prompt ({parsedData.improved_prompt.length} characters)
+                          </span>
+                        </div>
+                        <pre className="text-sm text-foreground whitespace-pre-wrap font-mono leading-relaxed border border-border/50 rounded p-4 bg-background/30 max-h-80 overflow-y-auto">
+                          {parsedData.improved_prompt}
+                        </pre>
+                      </Card>
+                      
+                      {parsedData.changes_applied && Array.isArray(parsedData.changes_applied) && (
+                        <Card className="p-4 bg-background/50">
+                          <h5 className="font-medium text-primary mb-2">Applied Optimizations:</h5>
+                          <ul className="space-y-2 text-sm text-muted-foreground">
+                            {parsedData.changes_applied.map((change: any, index: number) => (
+                              <li key={index} className="flex items-start gap-2 border-l-2 border-accent/30 pl-3">
+                                <span className="text-accent">•</span>
+                                <span>
+                                  {typeof change === 'string' 
+                                    ? change 
+                                    : change?.modification || JSON.stringify(change).substring(0, 100)
+                                  }
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </Card>
+                      )}
+                    </div>
+                  );
+                }
+                
+                return null;
+              } catch (e) {
+                return null;
+              }
+            })()}
+          </div>
+        );
+      }
+      
+      // Fallback to original behavior if no raw response
       if (!finalPrompt || finalPrompt.trim() === '') {
         return (
           <div className="text-center text-muted-foreground py-8">
@@ -259,11 +341,9 @@ export function AgentOutputDisplay({
       // Extract the actual prompt content and improvements if it's in a JSON structure
       let displayPrompt = finalPrompt;
       let extractedImprovements = improvements;
-      let rawResponse = null;
       
       try {
         const parsed = JSON.parse(finalPrompt);
-        rawResponse = parsed;
         
         if (parsed.improved_prompt) {
           displayPrompt = parsed.improved_prompt;
@@ -292,18 +372,6 @@ export function AgentOutputDisplay({
             <h4 className="font-medium">Final Optimized Prompt</h4>
             <Badge variant="secondary">{Array.isArray(extractedImprovements) ? extractedImprovements.length : 0} optimizations</Badge>
           </div>
-          
-          {/* Show raw response if we parsed JSON */}
-          {rawResponse && (
-            <Card className="p-4 bg-background/50">
-              <div className="space-y-2 mb-4">
-                <span className="text-xs text-muted-foreground">Raw Agent 5 Response (JSON)</span>
-              </div>
-              <pre className="text-xs text-muted-foreground bg-background/30 p-3 rounded overflow-auto max-h-40 border border-border/30">
-                {JSON.stringify(rawResponse, null, 2)}
-              </pre>
-            </Card>
-          )}
           
           <div className="space-y-4">
             <Card className="p-4 bg-background/50">
@@ -336,10 +404,25 @@ export function AgentOutputDisplay({
       return (
         <Card className="p-4 bg-background/50">
           <div className="text-destructive mb-2">Error displaying final prompt</div>
-          <div className="text-xs text-muted-foreground mb-3">Showing raw data:</div>
-          <pre className="text-xs text-muted-foreground bg-background/30 p-3 rounded overflow-auto max-h-40 border border-border/30">
-            {String(finalPrompt)}
-          </pre>
+          <div className="text-xs text-muted-foreground mb-3">Showing all available data:</div>
+          
+          {rawFinalResponse && (
+            <div className="mb-4">
+              <div className="text-xs text-muted-foreground mb-2">Raw Response:</div>
+              <pre className="text-xs text-muted-foreground bg-background/30 p-3 rounded overflow-auto max-h-40 border border-border/30">
+                {JSON.stringify(rawFinalResponse, null, 2)}
+              </pre>
+            </div>
+          )}
+          
+          {finalPrompt && (
+            <div>
+              <div className="text-xs text-muted-foreground mb-2">Final Prompt String:</div>
+              <pre className="text-xs text-muted-foreground bg-background/30 p-3 rounded overflow-auto max-h-40 border border-border/30">
+                {String(finalPrompt)}
+              </pre>
+            </div>
+          )}
         </Card>
       );
     }

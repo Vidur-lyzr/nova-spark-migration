@@ -19,6 +19,7 @@ export interface MigrationState {
   performanceGaps: PerformanceGap[];
   finalPrompt: string;
   improvements: string[];
+  rawFinalResponse: any; // Add raw response for debugging
   testStatuses: Record<string, TestStatus>;
   logs: string[];
   error?: string;
@@ -34,6 +35,7 @@ const initialState: MigrationState = {
   performanceGaps: [],
   finalPrompt: '',
   improvements: [],
+  rawFinalResponse: null,
   testStatuses: {},
   logs: [],
 };
@@ -211,6 +213,7 @@ export function useMigration() {
         ...prev,
         finalPrompt: improvement.improved_prompt,
         improvements: improvement.changes_applied,
+        rawFinalResponse: improvement.raw_response,
         step: 'complete',
         isProcessing: false,
         progress: { current: 5, total: 5, message: 'Migration completed successfully!' }

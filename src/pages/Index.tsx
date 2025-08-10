@@ -170,6 +170,7 @@ const Index = () => {
                 performanceGaps={state.performanceGaps}
                 finalPrompt={state.finalPrompt}
                 improvements={state.improvements}
+                rawFinalResponse={state.rawFinalResponse}
                 testStatuses={state.testStatuses}
               />
         </div>
@@ -225,6 +226,7 @@ const Index = () => {
                 performanceGaps={state.performanceGaps}
                 finalPrompt={state.finalPrompt}
                 improvements={state.improvements}
+                rawFinalResponse={state.rawFinalResponse}
                 testStatuses={state.testStatuses}
               />
 

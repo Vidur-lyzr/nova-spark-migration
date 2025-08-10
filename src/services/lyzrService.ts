@@ -223,6 +223,7 @@ class LyzrAgentService {
   async improvePrompt(currentPrompt: string, performanceGaps: PerformanceGap[]): Promise<{
     improved_prompt: string;
     changes_applied: string[];
+    raw_response?: any;
   }> {
     const improvementInput = {
       current_prompt: currentPrompt,
@@ -238,10 +239,23 @@ class LyzrAgentService {
       const response = await this.callAgent(this.agentIds.promptImprover, improvementInput);
       console.log('Agent 5 raw response:', JSON.stringify(response, null, 2));
       
+      let finalResponse = response;
+      
+      // Handle nested JSON structure - check if response has a 'response' field with JSON string
+      if (response?.response && typeof response.response === 'string') {
+        try {
+          const nestedResponse = JSON.parse(response.response);
+          console.log('Agent 5 parsed nested response:', JSON.stringify(nestedResponse, null, 2));
+          finalResponse = nestedResponse;
+        } catch (e) {
+          console.warn('Failed to parse nested response, using original:', e.message);
+        }
+      }
+      
       // Transform changes_applied from complex objects to simple strings
       let changesApplied: string[] = [];
-      if (response.changes_applied && Array.isArray(response.changes_applied)) {
-        changesApplied = response.changes_applied.map((change: any) => {
+      if (finalResponse.changes_applied && Array.isArray(finalResponse.changes_applied)) {
+        changesApplied = finalResponse.changes_applied.map((change: any) => {
           if (typeof change === 'string') return change;
           if (typeof change === 'object' && change.modification) {
             return change.modification;
@@ -254,14 +268,16 @@ class LyzrAgentService {
       }
       
       return {
-        improved_prompt: response.improved_prompt || '',
-        changes_applied: changesApplied
+        improved_prompt: finalResponse.improved_prompt || '',
+        changes_applied: changesApplied,
+        raw_response: response // Always include raw response for debugging
       };
     } catch (error) {
       console.error('Failed to process prompt improvements:', error);
       return {
         improved_prompt: '',
-        changes_applied: []
+        changes_applied: [],
+        raw_response: error
       };
     }
   }
