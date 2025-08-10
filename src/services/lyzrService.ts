@@ -17,6 +17,15 @@ export interface NovaTestResult {
   actual_output: any;
 }
 
+// Raw response from Agent 4
+export interface RawPerformanceGap {
+  gap: string;
+  example: string;
+  frequency: string;
+  suggested_fix: string;
+}
+
+// Transformed interface for UI
 export interface PerformanceGap {
   issue: string;
   severity: string;
@@ -135,8 +144,27 @@ class LyzrAgentService {
       actual_output: novaResults[index]?.actual_output || null
     }));
     
-    const response = await this.callAgent(this.agentIds.outputComparator, comparisonData);
-    return response.performance_gaps || [];
+    try {
+      const response = await this.callAgent(this.agentIds.outputComparator, comparisonData);
+      const rawGaps: RawPerformanceGap[] = response.performance_gaps || [];
+      
+      // Transform the response to match UI expectations
+      return rawGaps.map(gap => ({
+        issue: gap.gap || 'Unknown issue',
+        severity: this.mapFrequencyToSeverity(gap.frequency),
+        suggestion: gap.suggested_fix || 'No suggestion available'
+      }));
+    } catch (error) {
+      console.error('Failed to process performance gaps:', error);
+      return [];
+    }
+  }
+
+  private mapFrequencyToSeverity(frequency: string): string {
+    const freq = frequency?.toLowerCase();
+    if (freq?.includes('multiple') || freq === 'high') return 'high';
+    if (freq === '2' || freq === '3') return 'medium';
+    return 'low';
   }
 
   async improvePrompt(currentPrompt: string, performanceGaps: PerformanceGap[]): Promise<{
@@ -148,11 +176,32 @@ class LyzrAgentService {
       evaluation_results: { performance_gaps: performanceGaps }
     };
     
-    const response = await this.callAgent(this.agentIds.promptImprover, improvementInput);
-    return {
-      improved_prompt: response.improved_prompt || '',
-      changes_applied: response.changes_applied || []
-    };
+    try {
+      const response = await this.callAgent(this.agentIds.promptImprover, improvementInput);
+      
+      // Transform changes_applied from complex objects to simple strings
+      let changesApplied: string[] = [];
+      if (response.changes_applied && Array.isArray(response.changes_applied)) {
+        changesApplied = response.changes_applied.map((change: any) => {
+          if (typeof change === 'string') return change;
+          if (typeof change === 'object' && change.modification) {
+            return change.modification;
+          }
+          return 'Optimization applied';
+        });
+      }
+      
+      return {
+        improved_prompt: response.improved_prompt || '',
+        changes_applied: changesApplied
+      };
+    } catch (error) {
+      console.error('Failed to process prompt improvements:', error);
+      return {
+        improved_prompt: '',
+        changes_applied: []
+      };
+    }
   }
 }
 
