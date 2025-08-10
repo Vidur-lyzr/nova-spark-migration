@@ -48,60 +48,30 @@ export function Agent5Display({ step, finalPrompt, rawFinalResponse }: Agent5Dis
     );
   }
 
-  // Extract the improved_prompt from Agent 5 response
-  let extractedPrompt = '';
-
-  console.log('Agent5Display - rawFinalResponse:', rawFinalResponse);
-  console.log('Agent5Display - finalPrompt:', finalPrompt);
-
-  try {
-    // First try rawFinalResponse
-    if (rawFinalResponse) {
-      // Handle if rawFinalResponse is already the object we need
-      if (rawFinalResponse.improved_prompt) {
-        extractedPrompt = rawFinalResponse.improved_prompt;
-      } 
-      // Handle if it's nested in a response field
-      else if (rawFinalResponse.response) {
-        if (typeof rawFinalResponse.response === 'string') {
-          try {
-            const parsed = JSON.parse(rawFinalResponse.response);
-            if (parsed.improved_prompt) {
-              extractedPrompt = parsed.improved_prompt;
-            }
-          } catch (e) {
-            console.error('Failed to parse response string:', e);
-          }
-        } else if (rawFinalResponse.response.improved_prompt) {
-          extractedPrompt = rawFinalResponse.response.improved_prompt;
-        }
-      }
+  // Extract the improved_prompt using the same pattern as Agent 2
+  let extractedPrompt = finalPrompt || '';
+  
+  // If we have rawFinalResponse, use it first
+  if (rawFinalResponse) {
+    if (typeof rawFinalResponse === 'string') {
+      extractedPrompt = rawFinalResponse;
+    } else if (rawFinalResponse.improved_prompt) {
+      extractedPrompt = rawFinalResponse.improved_prompt;
+    } else if (rawFinalResponse.response) {
+      extractedPrompt = rawFinalResponse.response;
     }
-    
-    // Fallback to finalPrompt
-    if (!extractedPrompt && finalPrompt) {
-      if (typeof finalPrompt === 'string') {
-        try {
-          const parsed = JSON.parse(finalPrompt);
-          if (parsed.improved_prompt) {
-            extractedPrompt = parsed.improved_prompt;
-          } else {
-            extractedPrompt = finalPrompt;
-          }
-        } catch (e) {
-          extractedPrompt = finalPrompt;
-        }
-      } else if (finalPrompt.improved_prompt) {
-        extractedPrompt = finalPrompt.improved_prompt;
-      }
-    }
-
-  } catch (error) {
-    console.error('Error in Agent 5 extraction logic:', error);
-    extractedPrompt = 'Error extracting prompt';
   }
-
-  console.log('Agent5Display - extractedPrompt:', extractedPrompt);
+  
+  // Extract the actual prompt content if it's in a JSON structure (same as Agent 2)
+  let displayPrompt = extractedPrompt;
+  try {
+    const parsed = JSON.parse(extractedPrompt);
+    if (parsed.improved_prompt) {
+      displayPrompt = parsed.improved_prompt;
+    }
+  } catch (e) {
+    // Not JSON, use as-is
+  }
 
   return (
     <Card className="glass-card p-6">
@@ -116,11 +86,11 @@ export function Agent5Display({ step, finalPrompt, rawFinalResponse }: Agent5Dis
       <Card className="p-4 bg-background/50">
         <div className="space-y-2 mb-4">
           <span className="text-xs text-muted-foreground">
-            Final Optimized Prompt ({extractedPrompt.length} characters)
+            Final Optimized Prompt ({displayPrompt.length} characters)
           </span>
         </div>
         <pre className="text-sm text-foreground whitespace-pre-wrap font-mono leading-relaxed border border-border/50 rounded p-4 bg-background/30 max-h-80 overflow-y-auto">
-          {extractedPrompt || 'No final prompt available'}
+          {displayPrompt}
         </pre>
       </Card>
     </Card>
