@@ -76,25 +76,38 @@ class LyzrAgentService {
       try {
         let responseText = data.response || data.message || '{}';
         
+        console.log('Raw API response text:', responseText);
+        
         // Remove markdown code blocks if present
         if (responseText.includes('```json')) {
           responseText = responseText.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+          console.log('After removing markdown:', responseText);
         }
         
-        return JSON.parse(responseText);
+        const parsed = JSON.parse(responseText);
+        console.log('Successfully parsed JSON:', parsed);
+        return parsed;
       } catch (e) {
-        console.warn('Failed to parse JSON response, returning raw data:', data);
+        console.warn('Failed to parse JSON response, attempting extraction:', e.message);
+        console.log('Original data:', data);
+        
         // If parsing fails, try to extract JSON from the response text
         const responseText = data.response || data.message || '';
+        console.log('Attempting to extract JSON from:', responseText);
+        
         const jsonMatch = responseText.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           try {
-            return JSON.parse(jsonMatch[0]);
+            const extracted = JSON.parse(jsonMatch[0]);
+            console.log('Successfully extracted JSON:', extracted);
+            return extracted;
           } catch (e2) {
-            // Final fallback
-            return data;
+            console.error('Failed to parse extracted JSON:', e2.message);
           }
         }
+        
+        // Final fallback - return raw data
+        console.log('Returning raw data as fallback');
         return data;
       }
     } catch (error) {
@@ -126,10 +139,36 @@ class LyzrAgentService {
     const response = await this.callAgent(this.agentIds.promptMigrator, migrationInput);
     console.log('Agent 2 raw response:', JSON.stringify(response, null, 2));
     
-    const migratedPrompt = response.migrated_prompt || response.prompt || '';
-    console.log('Agent 2 extracted prompt length:', migratedPrompt.length);
+    // CRITICAL: Debug the exact response structure
+    console.log('Response keys:', Object.keys(response || {}));
+    console.log('migrated_prompt value:', response?.migrated_prompt);
+    console.log('prompt value:', response?.prompt);
+    console.log('response type:', typeof response);
     
-    return migratedPrompt;
+    let migratedPrompt = '';
+    
+    // Try multiple extraction methods
+    if (response?.migrated_prompt) {
+      migratedPrompt = response.migrated_prompt;
+      console.log('✅ Extracted from migrated_prompt field');
+    } else if (response?.prompt) {
+      migratedPrompt = response.prompt;
+      console.log('✅ Extracted from prompt field');
+    } else if (typeof response === 'string') {
+      migratedPrompt = response;
+      console.log('✅ Response is direct string');
+    } else if (response?.response) {
+      migratedPrompt = response.response;
+      console.log('✅ Extracted from response field');
+    } else {
+      console.log('❌ No valid prompt found in response');
+      console.log('Full response:', response);
+    }
+    
+    console.log('Agent 2 final extracted prompt length:', migratedPrompt?.length || 0);
+    console.log('Agent 2 final extracted prompt preview:', migratedPrompt?.substring(0, 200) + '...');
+    
+    return migratedPrompt || '';
   }
 
   async executeNovaTest(migratedPrompt: string, testCase: TestCase): Promise<any> {
