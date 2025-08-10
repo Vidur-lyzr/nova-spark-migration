@@ -63,11 +63,29 @@ class LyzrAgentService {
 
       const data = await response.json();
       
-      // Parse JSON response
+      // Parse JSON response - handle markdown-wrapped JSON
       try {
-        return JSON.parse(data.response || data.message || '{}');
+        let responseText = data.response || data.message || '{}';
+        
+        // Remove markdown code blocks if present
+        if (responseText.includes('```json')) {
+          responseText = responseText.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+        }
+        
+        return JSON.parse(responseText);
       } catch (e) {
         console.warn('Failed to parse JSON response, returning raw data:', data);
+        // If parsing fails, try to extract JSON from the response text
+        const responseText = data.response || data.message || '';
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            return JSON.parse(jsonMatch[0]);
+          } catch (e2) {
+            // Final fallback
+            return data;
+          }
+        }
         return data;
       }
     } catch (error) {

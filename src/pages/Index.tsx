@@ -242,6 +242,17 @@ const Index = () => {
             </div>
           </div>
 
+          {/* Agent Outputs - Persist after completion */}
+          <AgentOutputDisplay 
+            step={state.step}
+            testCases={state.testCases}
+            migratedPrompt={state.migratedPrompt}
+            novaResults={state.novaResults}
+            performanceGaps={state.performanceGaps}
+            finalPrompt={state.finalPrompt}
+            improvements={state.improvements}
+          />
+
           {/* Results */}
           <PromptComparison
             originalPrompt={prompt}
