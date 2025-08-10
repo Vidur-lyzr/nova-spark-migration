@@ -9,6 +9,7 @@ import { MigrationProgress } from '@/components/MigrationProgress';
 import { TestExecutionGrid } from '@/components/TestExecutionGrid';
 import { LogConsole } from '@/components/LogConsole';
 import { PromptComparison } from '@/components/PromptComparison';
+import { AgentOutputDisplay } from '@/components/AgentOutputDisplay';
 import { useMigration } from '@/hooks/useMigration';
 
 const Index = () => {
@@ -194,6 +195,17 @@ const Index = () => {
           {state.step === 'testing' && (
             <TestExecutionGrid testStatuses={state.testStatuses} />
           )}
+
+          {/* Agent Outputs Display */}
+          <AgentOutputDisplay 
+            step={state.step}
+            testCases={state.testCases}
+            migratedPrompt={state.migratedPrompt}
+            novaResults={state.novaResults}
+            performanceGaps={state.performanceGaps}
+            finalPrompt={state.finalPrompt}
+            improvements={state.improvements}
+          />
         </div>
       </div>
     );

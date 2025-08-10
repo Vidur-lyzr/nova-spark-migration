@@ -129,6 +129,7 @@ export function useMigration() {
         addLog(`Executing test ${testCase.test_id}...`);
 
         try {
+          // Call Agent 3 with migrated prompt and individual test case
           const result = await lyzrService.executeNovaTest(migratedPrompt, testCase);
           novaResults.push({
             test_id: testCase.test_id,
@@ -137,10 +138,16 @@ export function useMigration() {
           });
           
           updateTestStatus(testCase.test_id, 'complete');
-          addLog(`Test ${testCase.test_id} completed successfully`);
+          addLog(`Test ${testCase.test_id} completed: ${JSON.stringify(result).substring(0, 100)}...`);
         } catch (error) {
+          const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+          novaResults.push({
+            test_id: testCase.test_id,
+            input: testCase.input,
+            actual_output: { error: errorMsg }
+          });
           updateTestStatus(testCase.test_id, 'failed');
-          addLog(`Test ${testCase.test_id} failed: ${error}`);
+          addLog(`Test ${testCase.test_id} failed: ${errorMsg}`);
         }
       }
 
@@ -177,6 +184,8 @@ export function useMigration() {
 
       const improvement = await lyzrService.improvePrompt(migratedPrompt, performanceGaps);
       addLog('Prompt optimization completed');
+      addLog(`Final prompt: ${improvement.improved_prompt.substring(0, 200)}...`);
+      addLog(`Applied ${improvement.changes_applied.length} improvements`);
 
       setState(prev => ({
         ...prev,
