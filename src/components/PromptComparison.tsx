@@ -19,9 +19,20 @@ export function PromptComparison({ originalPrompt, finalPrompt, optimizations, o
   const [showOptimizations, setShowOptimizations] = useState(false);
   const { toast } = useToast();
 
+  // Extract the improved_prompt like Agent5Display does
+  let displayFinalPrompt = finalPrompt;
+  try {
+    const parsed = JSON.parse(finalPrompt);
+    if (parsed.improved_prompt) {
+      displayFinalPrompt = parsed.improved_prompt;
+    }
+  } catch (e) {
+    // Not JSON, use as-is
+  }
+
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(finalPrompt);
+      await navigator.clipboard.writeText(displayFinalPrompt);
       toast({
         title: "Copied to clipboard",
         description: "The Nova-optimized prompt has been copied to your clipboard.",
@@ -74,14 +85,14 @@ export function PromptComparison({ originalPrompt, finalPrompt, optimizations, o
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium text-accent">Nova-Optimized Prompt</h4>
-                  <span className="text-xs text-muted-foreground">
-                    {finalPrompt.length} chars
+                   <span className="text-xs text-muted-foreground">
+                     {displayFinalPrompt.length} chars
                   </span>
                 </div>
                 <ScrollArea className="h-64 w-full rounded-md border border-accent/30">
                   <div className="p-4 font-mono text-sm">
-                    <pre className="whitespace-pre-wrap text-foreground">
-                      {finalPrompt}
+                     <pre className="whitespace-pre-wrap text-foreground">
+                       {displayFinalPrompt}
                     </pre>
                   </div>
                 </ScrollArea>
