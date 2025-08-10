@@ -10,6 +10,7 @@ import { TestExecutionGrid } from '@/components/TestExecutionGrid';
 import { LogConsole } from '@/components/LogConsole';
 import { PromptComparison } from '@/components/PromptComparison';
 import { AgentOutputDisplay } from '@/components/AgentOutputDisplay';
+import { Agent5Display } from '@/components/Agent5Display';
 import { Header } from '@/components/Header';
 import { useMigration } from '@/hooks/useMigration';
 
@@ -173,6 +174,13 @@ const Index = () => {
                 rawFinalResponse={state.rawFinalResponse}
                 testStatuses={state.testStatuses}
               />
+
+          {/* Agent 5 Display - Separate component to avoid TabsContent error */}
+          <Agent5Display
+            step={state.step}
+            finalPrompt={state.finalPrompt}
+            rawFinalResponse={state.rawFinalResponse}
+          />
         </div>
       </div>
     );
@@ -229,6 +237,13 @@ const Index = () => {
                 rawFinalResponse={state.rawFinalResponse}
                 testStatuses={state.testStatuses}
               />
+
+          {/* Agent 5 Display - Separate component to avoid TabsContent error */}
+          <Agent5Display
+            step={state.step}
+            finalPrompt={state.finalPrompt}
+            rawFinalResponse={state.rawFinalResponse}
+          />
 
           {/* Final Actions */}
           <div className="text-center space-y-4">

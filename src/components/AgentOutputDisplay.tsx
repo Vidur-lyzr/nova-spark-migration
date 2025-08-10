@@ -358,7 +358,7 @@ export function AgentOutputDisplay({
       <h3 className="text-lg font-semibold gradient-text mb-4">Agent Outputs</h3>
       
       <Tabs defaultValue="testcases" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="testcases" className="flex items-center gap-2">
             <StatusIcon status={getStepStatus('generating')} />
             Agent 1
@@ -374,10 +374,6 @@ export function AgentOutputDisplay({
           <TabsTrigger value="analysis" className="flex items-center gap-2">
             <StatusIcon status={getStepStatus('analyzing')} />
             Agent 4
-          </TabsTrigger>
-          <TabsTrigger value="final" className="flex items-center gap-2">
-            <StatusIcon status={getStepStatus('optimizing')} />
-            Agent 5
           </TabsTrigger>
         </TabsList>
 
@@ -457,31 +453,6 @@ export function AgentOutputDisplay({
           </div>
         </TabsContent>
 
-        <TabsContent value="final" className="mt-4">
-          <ScrollArea className="h-96">
-            {(() => {
-              try {
-                console.log('About to render final prompt, rawFinalResponse:', !!rawFinalResponse);
-                const result = renderFinalPrompt();
-                console.log('Successfully rendered final prompt');
-                return result;
-              } catch (error) {
-                console.error('CRITICAL ERROR in renderFinalPrompt:', error);
-                return (
-                  <div className="text-destructive p-4">
-                    <div>Critical error in final prompt display</div>
-                    <div className="text-xs mt-2">Check console for details</div>
-                    {rawFinalResponse && (
-                      <pre className="text-xs mt-2 bg-background/30 p-2 rounded overflow-auto max-h-20">
-                        {JSON.stringify(rawFinalResponse, null, 2).substring(0, 200)}...
-                      </pre>
-                    )}
-                  </div>
-                );
-              }
-            })()}
-          </ScrollArea>
-        </TabsContent>
       </Tabs>
     </Card>
   );
