@@ -432,6 +432,10 @@ export function AgentOutputDisplay({
     }
   };
 
+  // Add debugging to track when component renders
+  console.log('AgentOutputDisplay rendering with step:', step);
+  console.log('AgentOutputDisplay rawFinalResponse available:', !!rawFinalResponse);
+
   return (
     <Card className="glass-card p-6">
       <h3 className="text-lg font-semibold gradient-text mb-4">Agent Outputs</h3>
@@ -467,7 +471,14 @@ export function AgentOutputDisplay({
               <Badge variant="secondary">{Array.isArray(testCases) ? testCases.length : 0} test cases</Badge>
             </div>
             <ScrollArea className="h-96">
-              {renderTestCases()}
+              {(() => {
+                try {
+                  return renderTestCases();
+                } catch (error) {
+                  console.error('Error in renderTestCases:', error);
+                  return <div className="text-destructive">Error loading test cases</div>;
+                }
+              })()}
             </ScrollArea>
           </div>
         </TabsContent>
@@ -479,7 +490,14 @@ export function AgentOutputDisplay({
               <Badge variant="outline" className="text-accent border-accent/30">Nova Format</Badge>
             </div>
             <ScrollArea className="h-96">
-              {renderMigration()}
+              {(() => {
+                try {
+                  return renderMigration();
+                } catch (error) {
+                  console.error('Error in renderMigration:', error);
+                  return <div className="text-destructive">Error loading migration</div>;
+                }
+              })()}
             </ScrollArea>
           </div>
         </TabsContent>
@@ -491,7 +509,14 @@ export function AgentOutputDisplay({
               <Badge variant="secondary">{Array.isArray(novaResults) ? novaResults.length : 0} results</Badge>
             </div>
             <ScrollArea className="h-96">
-              {renderNovaResults()}
+              {(() => {
+                try {
+                  return renderNovaResults();
+                } catch (error) {
+                  console.error('Error in renderNovaResults:', error);
+                  return <div className="text-destructive">Error loading Nova results</div>;
+                }
+              })()}
             </ScrollArea>
           </div>
         </TabsContent>
@@ -503,14 +528,41 @@ export function AgentOutputDisplay({
               <Badge variant="secondary">{Array.isArray(performanceGaps) ? performanceGaps.length : 0} issues found</Badge>
             </div>
             <ScrollArea className="h-96">
-              {renderPerformanceGaps()}
+              {(() => {
+                try {
+                  return renderPerformanceGaps();
+                } catch (error) {
+                  console.error('Error in renderPerformanceGaps:', error);
+                  return <div className="text-destructive">Error loading performance analysis</div>;
+                }
+              })()}
             </ScrollArea>
           </div>
         </TabsContent>
 
         <TabsContent value="final" className="mt-4">
           <ScrollArea className="h-96">
-            {renderFinalPrompt()}
+            {(() => {
+              try {
+                console.log('About to render final prompt, rawFinalResponse:', !!rawFinalResponse);
+                const result = renderFinalPrompt();
+                console.log('Successfully rendered final prompt');
+                return result;
+              } catch (error) {
+                console.error('CRITICAL ERROR in renderFinalPrompt:', error);
+                return (
+                  <div className="text-destructive p-4">
+                    <div>Critical error in final prompt display</div>
+                    <div className="text-xs mt-2">Check console for details</div>
+                    {rawFinalResponse && (
+                      <pre className="text-xs mt-2 bg-background/30 p-2 rounded overflow-auto max-h-20">
+                        {JSON.stringify(rawFinalResponse, null, 2).substring(0, 200)}...
+                      </pre>
+                    )}
+                  </div>
+                );
+              }
+            })()}
           </ScrollArea>
         </TabsContent>
       </Tabs>
