@@ -256,30 +256,73 @@ export function AgentOutputDisplay({
         );
       }
 
+      // Extract the actual prompt content and improvements if it's in a JSON structure
+      let displayPrompt = finalPrompt;
+      let extractedImprovements = improvements;
+      let rawResponse = null;
+      
+      try {
+        const parsed = JSON.parse(finalPrompt);
+        rawResponse = parsed;
+        
+        if (parsed.improved_prompt) {
+          displayPrompt = parsed.improved_prompt;
+        }
+        
+        if (parsed.changes_applied && Array.isArray(parsed.changes_applied)) {
+          extractedImprovements = parsed.changes_applied.map((change: any) => {
+            if (typeof change === 'string') return change;
+            if (typeof change === 'object' && change.modification) {
+              return change.modification;
+            }
+            if (typeof change === 'object' && change.expected_impact) {
+              return change.expected_impact;
+            }
+            return JSON.stringify(change).substring(0, 100);
+          });
+        }
+      } catch (e) {
+        // Not JSON, use as-is
+        console.log('Final prompt is not JSON, using as-is');
+      }
+
       return (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h4 className="font-medium">Final Optimized Prompt</h4>
-            <Badge variant="secondary">{Array.isArray(improvements) ? improvements.length : 0} optimizations</Badge>
+            <Badge variant="secondary">{Array.isArray(extractedImprovements) ? extractedImprovements.length : 0} optimizations</Badge>
           </div>
+          
+          {/* Show raw response if we parsed JSON */}
+          {rawResponse && (
+            <Card className="p-4 bg-background/50">
+              <div className="space-y-2 mb-4">
+                <span className="text-xs text-muted-foreground">Raw Agent 5 Response (JSON)</span>
+              </div>
+              <pre className="text-xs text-muted-foreground bg-background/30 p-3 rounded overflow-auto max-h-40 border border-border/30">
+                {JSON.stringify(rawResponse, null, 2)}
+              </pre>
+            </Card>
+          )}
+          
           <div className="space-y-4">
             <Card className="p-4 bg-background/50">
               <div className="space-y-2 mb-4">
-                <span className="text-xs text-muted-foreground">Final Prompt ({finalPrompt.length} characters)</span>
+                <span className="text-xs text-muted-foreground">Final Prompt ({displayPrompt.length} characters)</span>
               </div>
               <pre className="text-sm text-foreground whitespace-pre-wrap font-mono leading-relaxed border border-border/50 rounded p-4 bg-background/30 max-h-80 overflow-y-auto">
-                {finalPrompt}
+                {displayPrompt}
               </pre>
             </Card>
             
-            {Array.isArray(improvements) && improvements.length > 0 && (
+            {Array.isArray(extractedImprovements) && extractedImprovements.length > 0 && (
               <Card className="p-4 bg-background/50">
                 <h5 className="font-medium text-primary mb-2">Applied Optimizations:</h5>
-                <ul className="space-y-1 text-sm text-muted-foreground">
-                  {improvements.map((improvement, index) => (
-                    <li key={index} className="flex items-start gap-2">
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  {extractedImprovements.map((improvement, index) => (
+                    <li key={index} className="flex items-start gap-2 border-l-2 border-accent/30 pl-3">
                       <span className="text-accent">•</span>
-                      {improvement || 'Optimization applied'}
+                      <span>{improvement || 'Optimization applied'}</span>
                     </li>
                   ))}
                 </ul>
@@ -291,10 +334,13 @@ export function AgentOutputDisplay({
     } catch (error) {
       console.error('Error rendering final prompt:', error);
       return (
-        <div className="text-destructive p-4">
-          <div>Error displaying final prompt</div>
-          <div className="text-xs text-muted-foreground mt-2">Raw data: {String(finalPrompt).substring(0, 200)}...</div>
-        </div>
+        <Card className="p-4 bg-background/50">
+          <div className="text-destructive mb-2">Error displaying final prompt</div>
+          <div className="text-xs text-muted-foreground mb-3">Showing raw data:</div>
+          <pre className="text-xs text-muted-foreground bg-background/30 p-3 rounded overflow-auto max-h-40 border border-border/30">
+            {String(finalPrompt)}
+          </pre>
+        </Card>
       );
     }
   };
