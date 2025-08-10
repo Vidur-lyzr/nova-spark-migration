@@ -121,8 +121,15 @@ class LyzrAgentService {
       source_model: input.model
     };
     
+    console.log('Agent 2 Input:', JSON.stringify(migrationInput, null, 2));
+    
     const response = await this.callAgent(this.agentIds.promptMigrator, migrationInput);
-    return response.migrated_prompt || response.prompt || '';
+    console.log('Agent 2 raw response:', JSON.stringify(response, null, 2));
+    
+    const migratedPrompt = response.migrated_prompt || response.prompt || '';
+    console.log('Agent 2 extracted prompt length:', migratedPrompt.length);
+    
+    return migratedPrompt;
   }
 
   async executeNovaTest(migratedPrompt: string, testCase: TestCase): Promise<any> {
@@ -182,6 +189,11 @@ class LyzrAgentService {
       current_prompt: currentPrompt,
       evaluation_results: { performance_gaps: performanceGaps }
     };
+    
+    console.log('Agent 5 Input - Current Prompt Length:', currentPrompt?.length || 0);
+    console.log('Agent 5 Input - Current Prompt:', currentPrompt?.substring(0, 300) + '...');
+    console.log('Agent 5 Input - Performance Gaps Count:', performanceGaps?.length || 0);
+    console.log('Agent 5 Input - Full Payload:', JSON.stringify(improvementInput, null, 2));
     
     try {
       const response = await this.callAgent(this.agentIds.promptImprover, improvementInput);

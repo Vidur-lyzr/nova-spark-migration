@@ -97,6 +97,8 @@ export function useMigration() {
 
       const migratedPrompt = await lyzrService.migratePrompt(input);
       addLog('Prompt successfully migrated to Nova format');
+      addLog(`Migrated prompt length: ${migratedPrompt.length} characters`);
+      addLog(`Migrated prompt preview: ${migratedPrompt.substring(0, 200)}...`);
 
       setState(prev => ({
         ...prev,
@@ -181,6 +183,9 @@ export function useMigration() {
         progress: { current: 5, total: 5, message: 'Optimizing prompt...' }
       }));
       addLog('Optimizing prompt based on analysis...');
+      addLog(`Sending to Agent 5 - Current prompt length: ${migratedPrompt.length}`);
+      addLog(`Current prompt preview: ${migratedPrompt.substring(0, 200)}...`);
+      addLog(`Number of performance gaps: ${performanceGaps.length}`);
 
       const improvement = await lyzrService.improvePrompt(migratedPrompt, performanceGaps);
       addLog('Prompt optimization completed');
