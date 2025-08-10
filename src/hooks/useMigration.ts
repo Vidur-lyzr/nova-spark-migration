@@ -60,6 +60,8 @@ export function useMigration() {
   }, []);
 
   const runMigration = useCallback(async (input: MigrationInput) => {
+    let currentMigratedPrompt = ''; // Track migrated prompt throughout the process
+    
     try {
       setState(prev => ({ ...prev, isProcessing: true, error: undefined, logs: [] }));
 
@@ -96,6 +98,8 @@ export function useMigration() {
       addLog('Migrating prompt to Amazon Nova format...');
 
       const migratedPrompt = await lyzrService.migratePrompt(input);
+      currentMigratedPrompt = migratedPrompt; // Store in closure variable
+      
       addLog('Prompt successfully migrated to Nova format');
       addLog(`Migrated prompt length: ${migratedPrompt.length} characters`);
       addLog(`Migrated prompt preview: ${migratedPrompt.substring(0, 200)}...`);
@@ -132,7 +136,7 @@ export function useMigration() {
 
         try {
           // Call Agent 3 with migrated prompt and individual test case
-          const result = await lyzrService.executeNovaTest(migratedPrompt, testCase);
+          const result = await lyzrService.executeNovaTest(currentMigratedPrompt, testCase);
           novaResults.push({
             test_id: testCase.test_id,
             input: testCase.input,
@@ -183,11 +187,22 @@ export function useMigration() {
         progress: { current: 5, total: 5, message: 'Optimizing prompt...' }
       }));
       addLog('Optimizing prompt based on analysis...');
-      addLog(`Sending to Agent 5 - Current prompt length: ${migratedPrompt.length}`);
-      addLog(`Current prompt preview: ${migratedPrompt.substring(0, 200)}...`);
+      addLog(`Current migrated prompt for Agent 5: ${migratedPrompt ? 'FOUND' : 'MISSING'}`);
+      addLog(`Sending to Agent 5 - Current prompt length: ${migratedPrompt?.length || 0}`);
+      if (migratedPrompt) {
+        addLog(`Current prompt preview: ${migratedPrompt.substring(0, 200)}...`);
+      } else {
+        addLog('❌ ERROR: migratedPrompt is empty - Agent 5 will receive empty current_prompt!');
+      }
       addLog(`Number of performance gaps: ${performanceGaps.length}`);
 
-      const improvement = await lyzrService.improvePrompt(migratedPrompt, performanceGaps);
+      // CRITICAL: Use the tracked migrated prompt
+      if (!currentMigratedPrompt) {
+        addLog('❌ CRITICAL ERROR: No migrated prompt available for Agent 5!');
+        throw new Error('Missing migrated prompt for optimization');
+      }
+      
+      const improvement = await lyzrService.improvePrompt(currentMigratedPrompt, performanceGaps);
       addLog('Prompt optimization completed');
       addLog(`Final prompt: ${improvement.improved_prompt.substring(0, 200)}...`);
       addLog(`Applied ${improvement.changes_applied.length} improvements`);

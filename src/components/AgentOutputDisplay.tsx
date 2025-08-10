@@ -98,22 +98,43 @@ export function AgentOutputDisplay({
 
   const renderMigration = () => {
     try {
+      if (!migratedPrompt || migratedPrompt.trim() === '') {
+        return (
+          <div className="text-center text-muted-foreground py-8">
+            {getStepStatus('migrating') === 'active' ? 'Migrating prompt...' : 'Waiting for prompt migration...'}
+          </div>
+        );
+      }
+
+      // Extract the actual prompt content if it's in a JSON structure
+      let displayPrompt = migratedPrompt;
+      try {
+        const parsed = JSON.parse(migratedPrompt);
+        if (parsed.migrated_prompt) {
+          displayPrompt = parsed.migrated_prompt;
+        }
+      } catch (e) {
+        // Not JSON, use as-is
+      }
+
       return (
         <Card className="p-4 bg-background/50">
-          {migratedPrompt ? (
-            <pre className="text-sm text-foreground whitespace-pre-wrap font-mono leading-relaxed">
-              {migratedPrompt}
-            </pre>
-          ) : (
-            <div className="text-center text-muted-foreground py-8">
-              {getStepStatus('migrating') === 'active' ? 'Migrating prompt...' : 'Waiting for prompt migration...'}
-            </div>
-          )}
+          <div className="space-y-2 mb-4">
+            <span className="text-xs text-muted-foreground">Migrated Prompt ({displayPrompt.length} characters)</span>
+          </div>
+          <pre className="text-sm text-foreground whitespace-pre-wrap font-mono leading-relaxed border border-border/50 rounded p-4 bg-background/30 max-h-80 overflow-y-auto">
+            {displayPrompt}
+          </pre>
         </Card>
       );
     } catch (error) {
       console.error('Error rendering migration:', error);
-      return <div className="text-destructive">Error displaying migrated prompt</div>;
+      return (
+        <Card className="p-4 bg-background/50">
+          <div className="text-destructive">Error displaying migrated prompt</div>
+          <div className="text-xs text-muted-foreground mt-2">Raw data: {String(migratedPrompt).substring(0, 200)}...</div>
+        </Card>
+      );
     }
   };
 
@@ -227,6 +248,14 @@ export function AgentOutputDisplay({
 
   const renderFinalPrompt = () => {
     try {
+      if (!finalPrompt || finalPrompt.trim() === '') {
+        return (
+          <div className="text-center text-muted-foreground py-8">
+            {getStepStatus('optimizing') === 'active' ? 'Optimizing prompt...' : 'Waiting for prompt optimization...'}
+          </div>
+        );
+      }
+
       return (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -235,15 +264,12 @@ export function AgentOutputDisplay({
           </div>
           <div className="space-y-4">
             <Card className="p-4 bg-background/50">
-              {finalPrompt ? (
-                <pre className="text-sm text-foreground whitespace-pre-wrap font-mono leading-relaxed">
-                  {finalPrompt}
-                </pre>
-              ) : (
-                <div className="text-center text-muted-foreground py-8">
-                  {getStepStatus('optimizing') === 'active' ? 'Optimizing prompt...' : 'Waiting for prompt optimization...'}
-                </div>
-              )}
+              <div className="space-y-2 mb-4">
+                <span className="text-xs text-muted-foreground">Final Prompt ({finalPrompt.length} characters)</span>
+              </div>
+              <pre className="text-sm text-foreground whitespace-pre-wrap font-mono leading-relaxed border border-border/50 rounded p-4 bg-background/30 max-h-80 overflow-y-auto">
+                {finalPrompt}
+              </pre>
             </Card>
             
             {Array.isArray(improvements) && improvements.length > 0 && (
@@ -264,7 +290,12 @@ export function AgentOutputDisplay({
       );
     } catch (error) {
       console.error('Error rendering final prompt:', error);
-      return <div className="text-destructive">Error displaying final prompt</div>;
+      return (
+        <div className="text-destructive p-4">
+          <div>Error displaying final prompt</div>
+          <div className="text-xs text-muted-foreground mt-2">Raw data: {String(finalPrompt).substring(0, 200)}...</div>
+        </div>
+      );
     }
   };
 
